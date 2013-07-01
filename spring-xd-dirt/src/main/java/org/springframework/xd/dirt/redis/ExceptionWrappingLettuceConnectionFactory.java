@@ -34,9 +34,17 @@ public class ExceptionWrappingLettuceConnectionFactory extends LettuceConnection
 		super();
 	}
 
+	public ExceptionWrappingLettuceConnectionFactory(String ignore) {
+		this(System.getProperty("redis.hostname"), System.getProperty("redis.port"));
+	}	
+	
 	public ExceptionWrappingLettuceConnectionFactory(String host, int port) {
 		super(host, port);
 	}
+	
+	public ExceptionWrappingLettuceConnectionFactory(String host, String port) {
+		super(host, Integer.parseInt(port));
+	}	
 
 	@Override
 	public void initConnection() {

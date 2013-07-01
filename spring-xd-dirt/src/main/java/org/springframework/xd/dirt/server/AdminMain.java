@@ -56,13 +56,21 @@ public class AdminMain {
 			parser.printUsage(System.err);
 			System.exit(1);
 		}
-		AbstractOptions.setXDHome(options.getXDHomeDir());
-		AbstractOptions.setXDTransport(options.getTransport());
+		
+		setSystemProps(options);
+		
 		if (options.isShowHelp()) {
 			parser.printUsage(System.err);
 			System.exit(0);
 		}
 		launchStreamServer(options);
+	}
+	 
+	public static void setSystemProps(AbstractOptions options) {
+		AbstractOptions.setXDHome(options.getXDHomeDir());
+		AbstractOptions.setXDTransport(options.getTransport());
+		AbstractOptions.setSystemRedisPort(options.getRedisPort());
+		AbstractOptions.setSystemRedisHost(options.getRedisHost());		
 	}
 
 	/**

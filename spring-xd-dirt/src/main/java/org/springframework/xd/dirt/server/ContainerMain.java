@@ -53,8 +53,7 @@ public class ContainerMain  {
 			System.exit(1);
 		}
 
-		AbstractOptions.setXDHome(options.getXDHomeDir());
-		AbstractOptions.setXDTransport(options.getTransport());
+		setSystemProps(options);
 
 		if (options.isShowHelp()) {
 			parser.printUsage(System.err);
@@ -68,6 +67,13 @@ public class ContainerMain  {
 		default:
 			logger.info("only redis transport is supported now");
 		}
+	}
+	
+	public static void setSystemProps(AbstractOptions options) {
+		AbstractOptions.setXDHome(options.getXDHomeDir());
+		AbstractOptions.setXDTransport(options.getTransport());
+		AbstractOptions.setSystemRedisPort(options.getRedisPort());
+		AbstractOptions.setSystemRedisHost(options.getRedisHost());		
 	}
 
 }

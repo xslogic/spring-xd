@@ -36,6 +36,7 @@ allprojects {
 	repositories {
 		maven { url 'http://repo.springsource.org/libs-milestone' }
 		maven { url 'http://repo.springsource.org/plugins-release' }
+        maven { url 'http://repo1.maven.org/maven2' }
 	}
 	apply plugin: 'javadocHotfix'
 }
@@ -83,6 +84,11 @@ configure(javaProjects()) { subproject ->
 	}
 
 	sourceSets {
+        main {
+            java {
+                srcDirs "src/main/gen-java"
+            }
+        }
 		test {
 			resources {
 				srcDirs = ['src/test/resources', 'src/test/java']
@@ -172,18 +178,23 @@ project('spring-xd-analytics') {
 
 project('spring-xd-dirt') {
 	description = 'Spring XD DIRT'
+
 	dependencies {
 		compile project(":spring-xd-analytics"),
 				project(":spring-xd-module"),
-				project(":spring-xd-hadoop"),
 				project(":spring-xd-http"),
+                "org.apache.hadoop:hadoop-common:2.0.2-alpha",
+                "org.apache.hadoop:hadoop-hdfs:2.0.2-alpha",
+                "org.apache.hadoop:hadoop-yarn-client:2.0.2-alpha",
 				"org.springframework:spring-webmvc:$springVersion",
 				"org.springframework.hateoas:spring-hateoas:$springHATEOASVersion",
 				"org.codehaus.jackson:jackson-mapper-asl:$jacksonVersion",
 				"org.apache.tomcat.embed:tomcat-embed-core:$tomcatVersion",
 				"org.apache.tomcat.embed:tomcat-embed-logging-juli:$tomcatVersion",
 				"org.apache.tomcat:tomcat-jsp-api:$tomcatVersion",
+				"com.beust:jcommander:1.25",
 				"log4j:log4j:$log4jVersion",
+				"org.apache.thrift:libthrift:0.8.0",
 				"org.springframework.integration:spring-integration-amqp:$springIntegrationVersion",
 				"org.springframework.integration:spring-integration-event:$springIntegrationVersion",
 				"org.springframework.integration:spring-integration-file:$springIntegrationVersion",
@@ -215,6 +226,18 @@ project('spring-xd-dirt') {
 		args = ['--transport', 'local']
 	}
 
+    task generateThrift << {
+      FileTree thriftFiles = fileTree(dir: 'src/main/thrift').matching { include '**/*.thrift' }
+      exec {
+        executable = 'thrift'
+        args = ['--gen', 'java:hashcode', '-o', 'src/main/', thriftFiles.collect { it.absolutePath }.join(",") ]
+      }
+    }
+
+    task cleanThrift << {
+        delete 'src/main/gen-java'
+    }
+   
 	task configFiles {
 		def config = file("$rootDir/config")
 		outputs.dir config
@@ -241,6 +264,9 @@ project('spring-xd-dirt') {
 	applicationDistribution.from(moduleFiles) {
 		into "modules"
 	}
+
+    compileJava.dependsOn generateThrift
+    clean.dependsOn cleanThrift
 }
 
 project('spring-xd-http') {

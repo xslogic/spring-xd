@@ -33,5 +33,9 @@ public class AdminOptions extends AbstractOptions {
 	public int getHttpPort() {
 		return httpPort;
 	}
+	
+	public void setHttpPort(int port) {
+		this.httpPort = port;
+	}
 
 }
